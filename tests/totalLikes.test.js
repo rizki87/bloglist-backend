@@ -64,7 +64,6 @@ describe('total likes', () => {
 ]
 
   test('of empty list is zero', () => {    
-    debugger
     const result = listHelper.totalLikes([])
     expect(result).toBe(0)
   })
@@ -74,7 +73,8 @@ describe('total likes', () => {
     expect(result).toBe(5)
   })
 
-  test('of a blogger list is calculated right', () => {    
+  test('of a blogger list is calculated right', () => {
+    debugger
     const result = listHelper.totalLikes(blogs)
     expect(result).toBe(36)
   })
