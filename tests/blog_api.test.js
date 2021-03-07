@@ -32,7 +32,7 @@ test('field named id is exists', async () => {
   expect(response.body[0].id).toBeDefined()
 })
 
-test('a valid note can be added ', async () => {
+test('a valid blog can be added ', async () => {
   const newBlog = {
     title: "Canonical string reduction",
     author: "Edsger W. Dijkstra",
@@ -53,6 +53,19 @@ test('a valid note can be added ', async () => {
   expect(title).toContainEqual(
     'Canonical string reduction'
   )
+})
+
+test('if the likes property is missing from the request', async () => {
+  await api
+        .get('/api/blogs')
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+        .expect(response => {          
+            expect(response.body[1]).not.toHaveProperty('likes')
+            response.body[1].likes = 0
+            // console.log('res ===', response.body)
+            expect(response.body[1].likes).toBe(0)
+        })
 })
 
 afterAll(() => {
