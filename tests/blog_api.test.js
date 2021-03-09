@@ -61,13 +61,53 @@ test('if the likes property is missing from the request', async () => {
         .expect(200)
         .expect('Content-Type', /application\/json/)
         .expect(response => {          
-            expect(response.body[1]).not.toHaveProperty('likes')
-            response.body[1].likes = 0
-            // console.log('res ===', response.body)
+            // expect(response.body[1]).not.toHaveProperty('likes')
+            // response.body[1].likes = 0
+            // console.log('response ===', response.body[1].likes)
             expect(response.body[1].likes).toBe(0)
         })
 })
 
-afterAll(() => {
-    mongoose.connection.close()
+// test('if the title and url properties are missing from the request data ', async (done) => {
+//   const newBlog = {
+//     title: "Canonical string reduction",
+//     url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+//     likes: 12
+//   }
+//     return await api
+//       .post('/api/blogs')
+//       .send(newBlog)
+//       .expect('Content-Type', /application\/json/)
+//       // .expect((res) => {
+//       //   console.log('kode = ', res)
+//       //   expect(res.status).toBe(400)
+//       //   done()
+//       // })
+
+//       // .then(function (err, res) {
+//       //   expect(res.statusCode).to.equal(400)
+//       //   done()
+//       // });
+
+//       // .set('Content-type', 'application/json')
+//       // .expect(res => {
+//       //   console.log('kode = ', res.statusCode)
+//       //   expect(res.statusCode).toBe(400)
+//       //   done()
+//       // })
+//       // .end(function(err, res){
+//       //   // console.log('status kode === ',res.statusCode)
+//       //   expect(res.statusCode).toBe(400)
+//       //   done()
+//       // })
+//       // .end(done)
+
+//   // const res = await api.post('/api/blogs').send(newBlog)
+//   // console.log('kode = ', res)
+//   // expect(res.status).toBe(415);
+
+// })
+
+afterAll(async () => {
+    await mongoose.connection.close()
 })
