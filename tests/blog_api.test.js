@@ -68,46 +68,26 @@ test('if the likes property is missing from the request', async () => {
         })
 })
 
-// test('if the title and url properties are missing from the request data ', async (done) => {
-//   const newBlog = {
-//     title: "Canonical string reduction",
-//     url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-//     likes: 12
-//   }
-//     return await api
-//       .post('/api/blogs')
-//       .send(newBlog)
-//       .expect('Content-Type', /application\/json/)
-//       // .expect((res) => {
-//       //   console.log('kode = ', res)
-//       //   expect(res.status).toBe(400)
-//       //   done()
-//       // })
+test('POST: /api/blogs, without required field, and response/statusCode = 400', async () => {
+  const newBlogX = {
+    url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+    likes: 12
+  }
 
-//       // .then(function (err, res) {
-//       //   expect(res.statusCode).to.equal(400)
-//       //   done()
-//       // });
+  await api
+    .post('/api/blogs')
+    .send(newBlogX)
+    .expect(400)
 
-//       // .set('Content-type', 'application/json')
-//       // .expect(res => {
-//       //   console.log('kode = ', res.statusCode)
-//       //   expect(res.statusCode).toBe(400)
-//       //   done()
-//       // })
-//       // .end(function(err, res){
-//       //   // console.log('status kode === ',res.statusCode)
-//       //   expect(res.statusCode).toBe(400)
-//       //   done()
-//       // })
-//       // .end(done)
+})
 
-//   // const res = await api.post('/api/blogs').send(newBlog)
-//   // console.log('kode = ', res)
-//   // expect(res.status).toBe(415);
-
+// afterAll(() => {
+//     mongoose.connection.close()
 // })
 
-afterAll(async () => {
-    await mongoose.connection.close()
+afterAll( async (done) => {
+  // console.log("... Test Ended");
+  await mongoose.connection.close();
+  await new Promise(resolve => setTimeout(() => resolve(), 500)); // avoid jest open handle error
+  done()
 })
