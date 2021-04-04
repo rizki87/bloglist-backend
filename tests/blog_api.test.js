@@ -9,76 +9,102 @@ const Blog = require('../models/blog')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
+  await Blog.insertMany(listHelper.initialBlogs)
 
-  for (let blog of listHelper.initialBlogs) {
-    let blogObject = new Blog(blog)
-    await blogObject.save()
-  }
+  // for (let blog of listHelper.initialBlogs) {
+  //   let blogObject = new Blog(blog)
+  //   await blogObject.save()
+  // }
 })
 
-test('blogs are returned as json and have a certain number of blog posts', async () => {
+describe('when there is initially some blogs saved', () => {
+  test('blogs are returned as json and have a certain number of blog posts', async () => {
     await api
-        .get('/api/blogs')
-        .expect(200)
-        .expect('Content-Type', /application\/json/)
-        .expect(response => {
-            expect(response.body).toHaveLength(2)
-        })
+      .get('/api/blogs')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+      .expect(response => {
+          expect(response.body).toHaveLength(2)
+      })
+  })
+
+  test('field named id is exists', async () => {
+    const response = await api.get('/api/blogs')
+
+    expect(response.body[0].id).toBeDefined()
+  })
 })
 
-test('field named id is exists', async () => {
-  const response = await api.get('/api/blogs')
+describe('addition of a new blog', () => {
+  test('a valid blog can be added ', async () => {
+    const newBlog = {
+      title: "Canonical string reduction",
+      author: "Edsger W. Dijkstra",
+      url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+      likes: 12
+    }
 
-  expect(response.body[0].id).toBeDefined()
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await listHelper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(listHelper.initialBlogs.length + 1)
+
+    const title = blogsAtEnd.map(b => b.title)
+    expect(title).toContainEqual(
+      'Canonical string reduction'
+    )
+  })
+
+  test('if the likes property is missing from the request', async () => {
+    await api
+          .get('/api/blogs')
+          .expect(200)
+          .expect('Content-Type', /application\/json/)
+          .expect(response => {          
+              // expect(response.body[1]).not.toHaveProperty('likes')
+              // response.body[1].likes = 0
+              // console.log('response ===', response.body[1].likes)
+              expect(response.body[1].likes).toBe(0)
+          })
+  })
+
+  test('POST: /api/blogs, without required field, and response/statusCode = 400', async () => {
+    const newBlogX = {
+      url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+      likes: 12
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlogX)
+      .expect(400)
+
+  })
 })
 
-test('a valid blog can be added ', async () => {
-  const newBlog = {
-    title: "Canonical string reduction",
-    author: "Edsger W. Dijkstra",
-    url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-    likes: 12
-  }
+describe('deletion of a blog', () => {
+  test('succeeds with status code 204 if id is valid', async () => {
+    const blogsAtStart = await listHelper.blogsInDb()
+    const blogToDelete = blogsAtStart[0]
 
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(201)
-    .expect('Content-Type', /application\/json/)
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(204)
 
-  const blogsAtEnd = await listHelper.blogsInDb()
-  expect(blogsAtEnd).toHaveLength(listHelper.initialBlogs.length + 1)
+    const blogsAtEnd = await listHelper.blogsInDb()
 
-  const title = blogsAtEnd.map(b => b.title)
-  expect(title).toContainEqual(
-    'Canonical string reduction'
-  )
-})
+    expect(blogsAtEnd).toHaveLength(
+      listHelper.initialBlogs.length - 1
+    )
 
-test('if the likes property is missing from the request', async () => {
-  await api
-        .get('/api/blogs')
-        .expect(200)
-        .expect('Content-Type', /application\/json/)
-        .expect(response => {          
-            // expect(response.body[1]).not.toHaveProperty('likes')
-            // response.body[1].likes = 0
-            // console.log('response ===', response.body[1].likes)
-            expect(response.body[1].likes).toBe(0)
-        })
-})
+    const titles = blogsAtEnd.map(r => r.title)
 
-test('POST: /api/blogs, without required field, and response/statusCode = 400', async () => {
-  const newBlogX = {
-    url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-    likes: 12
-  }
-
-  await api
-    .post('/api/blogs')
-    .send(newBlogX)
-    .expect(400)
-
+    expect(titles).not.toContain(blogToDelete.title)
+  })
 })
 
 // afterAll(() => {

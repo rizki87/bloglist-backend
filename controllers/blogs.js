@@ -21,24 +21,11 @@ blogsRouter.post('/', (request, response) => {
       console.log('onRejected function called: ' + error.message)
       response.status(400).json(error)
     })
+})
 
-  // try {
-  //   var user = new User(req.body);
-  //   await user.save();
-  //   res.status(200).send(user);
-  // } catch (error) {
-  //   if (error.name === "ValidationError") {
-  //     let errors = {};
-
-  //     Object.keys(error.errors).forEach((key) => {
-  //       errors[key] = error.errors[key].message;
-  //     });
-
-  //     return res.status(400).send(errors);
-  //   }
-  //   res.status(500).send("Something went wrong");
-  // }
-
+blogsRouter.delete('/:id', async (request, response) => {
+  await Blog.findByIdAndRemove(request.params.id)
+  response.status(204).end()
 })
 
 module.exports = blogsRouter
