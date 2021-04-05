@@ -107,9 +107,27 @@ describe('deletion of a blog', () => {
   })
 })
 
-// afterAll(() => {
-//     mongoose.connection.close()
-// })
+describe('alteration of a blog', () => {
+  test('update the amount of likes for a blog post', async () => {
+    const blogsAtStart = await listHelper.blogsInDb()
+    const blogToUpdate = blogsAtStart[0]
+
+    blogToUpdate.likes = 99
+
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(blogToUpdate)
+      .expect(200)
+
+    const blogsAtEnd = await listHelper.blogsInDb()
+
+    expect(blogsAtEnd[0].likes).toBe(99)
+  })
+})
+
+afterAll(() => {
+    mongoose.connection.close()
+})
 
 afterAll( async (done) => {
   // console.log("... Test Ended");
