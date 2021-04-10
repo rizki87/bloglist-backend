@@ -18,7 +18,7 @@ blogsRouter.post('/', (request, response) => {
       response.status(201).json(result)
     })
     .catch(error => {
-      console.log('onRejected function called: ' + error.message)
+      // console.log('onRejected function called: ' + error.message)
       response.status(400).json(error)
     })
 })
