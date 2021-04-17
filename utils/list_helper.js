@@ -17,6 +17,12 @@ const initialBlogs = [
         }
 ]
 
+const initialUser = {
+      username: 'asep',
+      name: 'Asep Bruder',
+      passwordHash: 'asepbruder'
+    }
+
 const dummy = (blogs) => {
   return blogs = 1
 }
@@ -75,6 +81,7 @@ const usersInDb = async () => {
 
 module.exports = {
   initialBlogs,
+  initialUser,
   dummy,
   totalLikes,
   favoriteBlog,

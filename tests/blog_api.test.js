@@ -13,6 +13,8 @@ const User = require('../models/user')
 beforeEach(async () => {
   await Blog.deleteMany({})
   await Blog.insertMany(listHelper.initialBlogs)
+  await User.deleteMany({})
+  await User.insertMany(listHelper.initialUser)
 
   // for (let blog of listHelper.initialBlogs) {
   //   let blogObject = new Blog(blog)
@@ -27,8 +29,9 @@ describe('when there is initially some blogs saved', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/)
       .expect(response => {
+          // console.log('response => ', response.body)
           expect(response.body).toHaveLength(2)
-      })
+      })      
   })
 
   test('field named id is exists', async () => {
@@ -175,11 +178,90 @@ describe('when there is initially one user in db', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/)
     
-    // console.log('result.body === ', result.body)
-    await expect(result.body.errors.username.message).toContain('`username` to be unique')
+    expect(result.body.error).toContain(`Username '${newUser.username}' already exists`)
 
     const usersAtEnd = await listHelper.usersInDb()
     expect(usersAtEnd).toHaveLength(usersAtStart.length)
+  })
+})
+
+describe('check that invalid users are not created and invalid add user operation', () => {
+  test('Username minimum length', async () => {
+    const newUser = {
+      username: 'jo',
+      name: 'John Mayer',
+      password: 'John Mayer',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('username, must be at least 3 characters long')
+  })
+
+  test('Password minimum length', async () => {
+    const newUser = {
+      username: 'johnmayer',
+      name: 'John Mayer',
+      password: 'Jm',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('password, must be at least 3 characters long')
+  })
+
+  test('Username is mandatory', async () => {
+    const newUser = {      
+      name: 'John Mayer',
+      password: 'John Mayer'
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('`username` is mandatory')
+  })
+
+  test('Password is mandatory', async () => {
+    const newUser = {  
+      username: 'johnmayer',    
+      name: 'John Mayer'
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('`password` is mandatory')
+  })
+
+  test('The username must be unique', async () => {
+    const newUser = {
+      username: 'asep',
+      name: 'Asep Bruder',
+      password: 'asepbruder',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+    
+    expect(result.body.error).toContain(`Username '${newUser.username}' already exists`)
   })
 })
 
